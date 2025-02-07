@@ -3,6 +3,8 @@ class arc :
         self.provenance = int(provenance)-1;
         self.destination = int(destination)-1;
         self.value = value;
+    def print(self):
+        print(f"arc from : {self.provenance} to : {self.destination} if : {self.value}")
 
 class etat:
     def __init__(self,name:str, id:int, arcs:list[arc], acceptant:bool):
@@ -15,6 +17,15 @@ class etat:
             if arc.value == value:
                 return arc
         return None;
+    def getDestfromValue(self, value: str):
+        if (self.getArcfromValue(value)!=None):
+            return self.getArcfromValue(value).destination;
+        else :
+            return -1
+    def print(self):
+        print ( f"etat : {self.name}, id : {self.id}, Acceptant : {self.acceptant}")
+        for i in self.arcs:
+            i.print()
 class afd:
     def __init__(self, nbetat:int, startetat:int, alphabet:str, etats:list[etat]):
         self.nbetat = nbetat;
@@ -30,3 +41,29 @@ class afd:
                 self = None;
     def __getstate__(self):
         return self.etat[self.curr]
+class afn:
+    def __init__(self, nbetat:int, startetat:list[int], alphabet:str, etats:list[etat]):
+        self.nbetat = nbetat;
+        self.curr = startetat;
+        self.alphabet = alphabet;
+        self.etat = etats;
+    def navigate(self, value:str):
+        if value in self.alphabet:
+            todel = []
+            for i in range(len(self.curr)):
+                print("newstate")
+                self.curr[i]= self.etat[self.curr[i]].getDestfromValue(value);
+                if self.curr[i]<0:
+                    todel.append(i)
+                print(self.etat[self.curr[i]].name, self.curr[i], self.etat[self.curr[i]].id)
+            for i in todel:
+                self.curr.pop(i)
+    def __getstate__(self):
+        res = []
+        for i in self.curr:
+            res.append(self.etat[i])
+        return res
+    def print(self):
+        print(f"afn, alphabet : {self.alphabet}, nbetat : {self.nbetat}, etat courant {str(self.curr)}")
+        for i in self.etat:
+            i.print()
