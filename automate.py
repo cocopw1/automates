@@ -1,3 +1,4 @@
+from __future__ import annotations
 class arc :
     def __init__(self, provenance: int, destination : int, value:str):
         self.provenance = int(provenance)-1;
@@ -5,7 +6,9 @@ class arc :
         self.value = value;
     def print(self):
         print(f"arc from : {self.provenance} to : {self.destination} if : {self.value}")
-
+    def clone(self)-> arc:
+        res = arc(self.provenance,self.destination,self.value);
+        return res;
 class etat:
     def __init__(self,name:str, id:int, arcs:list[arc], acceptant:bool):
         self.name = name;
@@ -26,6 +29,12 @@ class etat:
         print ( f"etat : {self.name}, id : {self.id}, Acceptant : {self.acceptant}")
         for i in self.arcs:
             i.print()
+    def clone(self) -> etat:
+        ar = []
+        for arc in self.arcs:
+            ar.append(arc.clone())
+        res = etat(name=self.name,id = self.id,arcs=ar,acceptant=self.acceptant)
+        return res
 class afd:
     def __init__(self, nbetat:int, startetat:int, alphabet:str, etats:list[etat]):
         self.nbetat = nbetat;
@@ -33,12 +42,13 @@ class afd:
         self.alphabet = alphabet;
         self.etat = etats;
     def navigate(self, value:str):
-        if value in self.alphabet:
+        if self.curr:
+            if value in self.alphabet:
+                
+                self.curr= self.etat[self.curr].getArcfromValue(value).destination;
+                self.curr = None
+                print(self.etat[self.curr].name, self.curr, self.etat[self.curr].id)
             
-            self.curr= self.etat[self.curr].getArcfromValue(value).destination;
-            print(self.etat[self.curr].name, self.curr, self.etat[self.curr].id)
-            if self.curr <0:
-                self = None;
     def __getstate__(self):
         return self.etat[self.curr]
 class afn:
@@ -67,3 +77,19 @@ class afn:
         print(f"afn, alphabet : {self.alphabet}, nbetat : {self.nbetat}, etat courant {str(self.curr)}")
         for i in self.etat:
             i.print()
+    def clone(self)-> afn:
+        etats = []
+        for etat in self.etat:
+            etats.append(etat.clone())
+        res = afn(self.nbetat,self.curr,self.alphabet)
+        return res;
+    def toAFD(self):
+         
+         for letter in self.alphabet:
+            newAFD = self.clone();
+            newAFD.navigate(letter);
+            newAFD.__getstate__();
+            
+
+        
+        
